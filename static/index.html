@@ -20,7 +20,7 @@
   </head>
   <body>
     <div class="container">
-      <div class="nav-bar m-y-1">
+      <div class="nav-bar m-t-1">
         <div class="input-group">
           <input type="text" class="form-control" placeholder="Stock symbol" name="symbol" id="symbol">
           <div class="input-group-btn">
@@ -28,15 +28,21 @@
           </div>
         </div>
       </div>
+      <div id="suggestions" class="list-group" style="display:none;">
+        <a href="#" class="list-group-item list-group-item-action">Dapibus ac facilisis in</a>
+        <a href="#" class="list-group-item list-group-item-action">Morbi leo risus</a>
+        <a href="#" class="list-group-item list-group-item-action">Porta ac consectetur ac</a>
+        <a href="#" class="list-group-item list-group-item-action disabled">Vestibulum at eros</a>
+      </div>
       <div id="error-alert" class="alert alert-danger" role="alert" style="display:none;">
       </div>
       <div id="info" style="display:none;">
-        <h3>
+        <h3 class="m-t-1">
           <span id="ticker">Symbol</span>
           <small id="asset-name" class="text-muted">Name</small>
         </h3>
-        <span id="last-price">Price</span>
-        <span id="change" class="">Change</span>
+        <strong id="last-price">Price</strong>
+        <span id="change">Change</span>
         (<span id="change-percent">Change%</span>)
 
         <table class="table">
