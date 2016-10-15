@@ -20,10 +20,23 @@ function startSearch() {
 function processData(data) {
   console.log("processData...");
   console.log(data);
-}
+  //TODO: Check for errors.
 
-function jsonCallback(json){
-  console.log(json);
+  $('#ticker').text(data.Symbol);
+  $('#asset-name').text(data.Name);
+  $('#last-price').text(data.LastPrice);
+  $('#change').html(numeral(data.Change).format('+0.000'));
+  $('#change-percent').html(numeral(data.ChangePercent/100).format('0.00%'));
+
+  $('#open-price').text(data.Open);
+  $('#high-price').text(data.High);
+  $('#low-price').text(data.Low);
+  $('#ytd-change').text(data.ChangeYTD);
+  $('#ytd-percent').text(numeral(data.ChangePercentYTD/100).format('(0.00%)'));
+
+  $('#volume').text(numeral(data.Volume).format('0.000a'));
+  $('#market-cap').text(numeral(data.MarketCap).format('0.000a'));
+
 }
 
 function injectScript(url) {
