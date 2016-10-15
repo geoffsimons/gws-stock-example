@@ -65,7 +65,7 @@ function showSuggestions(sugs) {
     var row = $('<a>')
       .addClass('list-group-item')
       .addClass('list-group-item-action')
-      .html('(<strong>'+sug.Symbol+'</strong>) '+sug.Name)
+      .html('(<strong class="text-primary">'+sug.Symbol+'</strong>) '+sug.Name)
       .click(function(e) {
         $('#symbol').val(sug.Symbol);
         startSearch();
@@ -121,7 +121,9 @@ function processData(data) {
     $('#asset-name').text(data.Name);
     $('#last-price').text(data.LastPrice);
     $('#change').html(numeral(data.Change).format('0.000'));
+    $('#change').attr('class',(data.Change < 0 ? 'text-danger' : 'text-success'));
     $('#change-percent').html(numeral(data.ChangePercent/100).format('0.00%'));
+    $('#change-percent').attr('class',(data.Change < 0 ? 'text-danger' : 'text-success'));
 
     $('#open-price').text(data.Open);
     $('#high-price').text(data.High);
