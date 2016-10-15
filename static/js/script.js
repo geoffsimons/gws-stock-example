@@ -10,14 +10,20 @@ function lookup() {
   if(q == acInput) {
     console.log("... ignoring matching q");
   }
-  if(acTimeout) {
-    console.log("Clearing timeout");
-    clearTimeout(acTimeout);
-  }
+  cancelLookup(); //Will check if acTimeout is truthy
   if(q.length > 0) {
     acTimeout = setTimeout(fetchLookup,300,q);
     acInput = q;
   }
+}
+
+function cancelLookup() {
+  if(acTimeout) {
+    console.log("Clearing timeout");
+    clearTimeout(acTimeout);
+  }
+  acTimeout = null;
+  acInput   = null;
 }
 
 function fetchLookup(q) {
@@ -39,7 +45,18 @@ function fetchLookup(q) {
 
 function showSuggestions(sugs) {
   //TODO: Assert that sugs is an array, silently fail.
-  console.log("showSuggestions()...");
+  console.log("showSuggestions()... acInput:",acInput);
+  if(!acInput) {
+    console.log("Suggestions were canceled. acInput not valid.");
+    //Do we need to do any dom element cleanup?
+    return;
+  }
+  //NOTE: The API does not return our input, so there is no
+  //      way to guarantee that sugs match, but we do cancel
+  //      fetches in order to save hits on any rate limit,
+  //      which in turn means there will be less sugs coming
+  //      through this function.
+
   // console.log(sugs);
   var $list = $('#suggestions');
   $list.empty();
@@ -57,9 +74,13 @@ function showSuggestions(sugs) {
     $list.append(row);
   });
   $list.show();
+  $('#info').hide();
 }
 
 function startSearch() {
+  cancelLookup();
+  $('#suggestions').hide();
+
   var q = $('#symbol').val();
 
   $('#symbol').blur();
@@ -113,7 +134,9 @@ function processData(data) {
 
     $('#info').show();
 
-    //TODO: Start a refresh loop.
+    //TODO: Start a refresh loop. BUT, it should back off or stop
+    //      when the market is not open. We can find out what market
+    //      an equity belongs to with slight variations to lookup().
   }
   else {
     console.log("Error:",data.Message);
