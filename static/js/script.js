@@ -20,30 +20,42 @@ function startSearch() {
 function processData(data) {
   console.log("processData...");
   console.log(data);
-  //TODO: Check for errors.
+  if(data.Status && data.Status == 'SUCCESS') {
+    $('#ticker').text(data.Symbol);
+    $('#asset-name').text(data.Name);
+    $('#last-price').text(data.LastPrice);
+    $('#change').html(numeral(data.Change).format('+0.000'));
+    $('#change-percent').html(numeral(data.ChangePercent/100).format('0.00%'));
 
-  $('#ticker').text(data.Symbol);
-  $('#asset-name').text(data.Name);
-  $('#last-price').text(data.LastPrice);
-  $('#change').html(numeral(data.Change).format('+0.000'));
-  $('#change-percent').html(numeral(data.ChangePercent/100).format('0.00%'));
+    $('#open-price').text(data.Open);
+    $('#high-price').text(data.High);
+    $('#low-price').text(data.Low);
+    $('#ytd-change').text(data.ChangeYTD);
+    $('#ytd-percent').text(numeral(data.ChangePercentYTD/100).format('(0.00%)'));
 
-  $('#open-price').text(data.Open);
-  $('#high-price').text(data.High);
-  $('#low-price').text(data.Low);
-  $('#ytd-change').text(data.ChangeYTD);
-  $('#ytd-percent').text(numeral(data.ChangePercentYTD/100).format('(0.00%)'));
+    $('#volume').text(numeral(data.Volume).format('0.000a'));
+    $('#market-cap').text(numeral(data.MarketCap).format('0.000a'));
 
-  $('#volume').text(numeral(data.Volume).format('0.000a'));
-  $('#market-cap').text(numeral(data.MarketCap).format('0.000a'));
+    $('#info').show();
 
-  //TODO: Start a refresh loop.
+    //TODO: Start a refresh loop.
+  }
+  else {
+    console.log("Error:",data.Message);
+    //There was an error.
+    $('#info').hide();
+    $('#error-alert').text(data.Message);
+    $('#error-alert').show();
+  }
+
 
 }
 
 function fetchQuote() {
+  $('#error-alert').hide();
+
   var url = 'http://dev.markitondemand.com/MODApis/Api/v2/Quote/jsonp?symbol=';
-  url += query;
+  url += encodeURIComponent(query);
 
   console.log("Fetching " +url+ " ...");
   $.ajax({
