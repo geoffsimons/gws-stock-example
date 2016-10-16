@@ -1,4 +1,4 @@
-# mnp
+# gws-stock-example
 
 Simple demo that connects with the Markit on Demand API to
 lookup symbols and fetch stock quotes.
