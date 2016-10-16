@@ -31,15 +31,17 @@ function fetchLookup(q) {
   var url = 'http://dev.markitondemand.com/MODApis/Api/v2/Lookup/jsonp?input=';
   url += encodeURIComponent(q);
 
+  //TODO: The call to ajax can be moved into a general fetch function.
   console.log("Fetching " +url+ " ...");
   $.ajax({
     url: url,
     dataType: 'jsonp',
     jsonp: 'jsoncallback',
     jsonpCallback: 'showSuggestions',
-    // error: function(jqXHR, testStatus, errorThrown) {
-    //   console.log("ERROR:" +errorThrown);
-    // },
+    error: function(jqXHR, testStatus, errorThrown) {
+      console.log("ERROR:" +errorThrown);
+      showError(errorThrown);
+    }
   });
 }
 
@@ -107,9 +109,10 @@ function fetchQuote() {
     dataType: 'jsonp',
     jsonp: 'jsoncallback',
     jsonpCallback: 'processData',
-    // error: function(jqXHR, testStatus, errorThrown) {
-    //   console.log("ERROR:" +errorThrown);
-    // },
+    error: function(jqXHR, testStatus, errorThrown) {
+      console.log("ERROR:" +errorThrown);
+      showError(errorThrown);
+    }
   });
 }
 
@@ -148,10 +151,15 @@ function processData(data) {
   else {
     console.log("Error:",data.Message);
     //There was an error.
-    $('#info').hide();
-    $('#error-alert').text(data.Message);
-    $('#error-alert').show();
+    showError(data.Message);
   }
+}
+
+//TODO: Consider different types of input params.
+function showError(str) {
+  $('#info').hide();
+  $('#error-alert').text(str);
+  $('#error-alert').show();
 }
 
 $(document).ready(function () {
