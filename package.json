@@ -1,5 +1,5 @@
 {
-  "name": "stock-quote-example",
+  "name": "gws-stock-example",
   "version": "1.0.0",
   "description": "Lookup symbols and fetch quotes.",
   "main": "main.js",
