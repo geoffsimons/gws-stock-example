@@ -139,6 +139,11 @@ function processData(data) {
     //TODO: Start a refresh loop. BUT, it should back off or stop
     //      when the market is not open. We can find out what market
     //      an equity belongs to with slight variations to lookup().
+    //NOTE: According to the following issue tracked by markitondemand,
+    //      the data is no longer "realtime".
+    //  https://github.com/markitondemand/DataApis/issues/38
+    //      Because of this, we can come back to implement auto-refresh
+    //      when the API is fixed.
   }
   else {
     console.log("Error:",data.Message);
