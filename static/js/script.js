@@ -19,7 +19,7 @@ function lookup() {
   else {
     //If the user cleared the input,
     //clear the suggestions.
-    $('#suggestions').hide();
+    $('#sug-list').hide();
   }
 }
 
@@ -39,6 +39,9 @@ function fetchLookup(q) {
   fetch(url, 'showSuggestions');
 }
 
+var suggestions = [];
+var sugIndex = -1;
+
 function showSuggestions(sugs) {
   //TODO: Assert that sugs is an array, silently fail.
   console.log("showSuggestions()... acInput:",acInput);
@@ -47,7 +50,8 @@ function showSuggestions(sugs) {
     return;
   }
 
-  //TODO: Cache the sugs object to enable arrow UP and DOWN nav.
+  suggestions = sugs;
+  sugIndex = -1;
 
   //NOTE: The API does not return our input, so there is no
   //      way to guarantee that sugs match, but we do cancel
@@ -66,7 +70,7 @@ function showSuggestions(sugs) {
   //   after a change to the input field, but not sure if that would help.
 
   // console.log(sugs);
-  var $list = $('#suggestions');
+  var $list = $('#sug-list');
   $list.empty();
   sugs.forEach(function(sug, index, array) {
     // console.log(index,sug);
@@ -89,7 +93,7 @@ function showSuggestions(sugs) {
 
 function startSearch() {
   cancelLookup();
-  $('#suggestions').hide();
+  $('#sug-list').hide();
 
   var q = $('#symbol').val();
 
@@ -176,10 +180,29 @@ function handleAjaxError(jqXHR, textStatus, errorThrown) {
 
 function showError(str) {
   //For now, we will just show the error and hide info and sugs.
-  $('#suggestions').hide();
+  $('#sug-list').hide();
   $('#info').hide();
   $('#error-alert').text(str);
   $('#error-alert').show();
+}
+
+function navSuggestions(dx) { //dx: change in index
+  // console.log("navSuggestions("+dx+")");
+  sugIndex += dx;
+  if(sugIndex >= suggestions.length) {
+    // console.log(" ... clamping MAX => " +(suggestions.length-1));
+    sugIndex = suggestions.length - 1;
+  }
+  if(sugIndex < 0) {
+    // console.log(" ... clamping MIN => -1");
+    sugIndex = -1;
+  }
+  // console.log(sugIndex,suggestions[sugIndex]);
+  //Clear any old highlighting.
+  $('.list-group-item-info').removeClass('list-group-item-info');
+  if(sugIndex > -1 && sugIndex < suggestions.length) {
+    $('.sug-row').eq(sugIndex).addClass('list-group-item-info');
+  }
 }
 
 $(document).ready(function () {
@@ -195,25 +218,24 @@ $(document).ready(function () {
   $('#symbol').keyup(function(e) {
     // console.log(e.which);
     if(e.which == 13) {
-      //TODO: if(symFocus) $(this).val(symFocus);
-      //  Assuming that symFocus == highlighted row's symbol.
+      if(sugIndex > -1 && sugIndex < suggestions.length) {
+        var sug = suggestions[sugIndex];
+        console.log("ENTER on: ",sug);
+        if(sug) {
+          $(this).val(sug.Symbol);
+        }
+      }
       startSearch();
     }
-    //TODO: else if e.which is a UP or DOWN arrow
-    //      We should move the highlight.
-    //      In order to implement, we need to have a
-    //      way to get the list of suggestions,
-    //      so instead of passing that param from the
-    //      ajax response, we could set it to a var.
-    //      Then we would just need to store the index.
-    //      -1 < sugIndex < sugs.length
-    if(e.which == 38) { //UP
+    else if(e.which == 38) { //UP
       //Up is actually moving "back" in the array.
-      //TODO: sugIndex = max(sugIndex-1, -1);
+      // sugIndex = Math.max(sugIndex-1, -1);
+      navSuggestions(-1);
     }
-    if(e.which == 40) { //DOWN
+    else if(e.which == 40) { //DOWN
       //Down is actually moving "forward" in the array.
-      //TODO: sugIndex = min(sugIndex+1, sugs.length-1);
+      // sugIndex = Math.min(sugIndex+1, suggestions.length-1);
+      navSuggestions(1);
     }
     else {
       //TODO: convert the query to upper-case.
