@@ -111,10 +111,10 @@ function fetchQuote() {
   var url = 'http://dev.markitondemand.com/MODApis/Api/v2/Quote/jsonp?symbol=';
   url += encodeURIComponent(query);
 
-  fetch(url, 'processData');
+  fetch(url, 'processQuote');
 }
 
-function processData(data) {
+function processQuote(data) {
   console.log("processData...");
   console.log(data);
   if(data.Status && data.Status == 'SUCCESS') {
