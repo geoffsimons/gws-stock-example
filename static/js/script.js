@@ -9,6 +9,7 @@ function lookup() {
   var q = $('#symbol').val();
   if(q == acInput) {
     console.log("... ignoring matching q");
+    return;
   }
   cancelLookup(); //Will check if acTimeout is truthy
   if(q.length > 0) {
@@ -31,18 +32,7 @@ function fetchLookup(q) {
   var url = 'http://dev.markitondemand.com/MODApis/Api/v2/Lookup/jsonp?input=';
   url += encodeURIComponent(q);
 
-  //TODO: The call to ajax can be moved into a general fetch function.
-  console.log("Fetching " +url+ " ...");
-  $.ajax({
-    url: url,
-    dataType: 'jsonp',
-    jsonp: 'jsoncallback',
-    jsonpCallback: 'showSuggestions',
-    error: function(jqXHR, testStatus, errorThrown) {
-      console.log("ERROR:" +errorThrown);
-      showError(errorThrown);
-    }
-  });
+  fetch(url, 'showSuggestions');
 }
 
 function showSuggestions(sugs) {
@@ -63,10 +53,11 @@ function showSuggestions(sugs) {
   var $list = $('#suggestions');
   $list.empty();
   sugs.forEach(function(sug, index, array) {
-    console.log(index,sug);
+    // console.log(index,sug);
     var row = $('<a>')
       .addClass('list-group-item')
       .addClass('list-group-item-action')
+      .addClass('sug-row')
       .html('(<strong class="text-primary">'+sug.Symbol+'</strong>) '+sug.Name)
       .click(function(e) {
         $('#symbol').val(sug.Symbol);
@@ -77,6 +68,7 @@ function showSuggestions(sugs) {
   });
   $list.show();
   $('#info').hide();
+  $('#error-alert').hide();
 }
 
 function startSearch() {
@@ -103,17 +95,7 @@ function fetchQuote() {
   var url = 'http://dev.markitondemand.com/MODApis/Api/v2/Quote/jsonp?symbol=';
   url += encodeURIComponent(query);
 
-  console.log("Fetching " +url+ " ...");
-  $.ajax({
-    url: url,
-    dataType: 'jsonp',
-    jsonp: 'jsoncallback',
-    jsonpCallback: 'processData',
-    error: function(jqXHR, testStatus, errorThrown) {
-      console.log("ERROR:" +errorThrown);
-      showError(errorThrown);
-    }
-  });
+  fetch(url, 'processData');
 }
 
 function processData(data) {
@@ -149,14 +131,36 @@ function processData(data) {
     //      when the API is fixed.
   }
   else {
-    console.log("Error:",data.Message);
+    console.log("Error:",data.Message || data.Status);
     //There was an error.
-    showError(data.Message);
+    showError(data.Message || data.Status);
   }
 }
 
-//TODO: Consider different types of input params.
+function fetch(url, cbName) {
+  console.log("Fetching " +url);
+  console.log("callback:",cbName);
+  $.ajax({
+    url: url,
+    dataType: 'jsonp',
+    jsonp: 'jsoncallback',
+    jsonpCallback: cbName,
+    error: handleAjaxError
+  });
+}
+
+function handleAjaxError(jqXHR, textStatus, errorThrown) {
+  console.log("AjaxError:" +errorThrown);
+  // For now, I'm going to let Ajax errors fail silently.
+  //  There could be any number of reasons that the Ajax
+  //  call might fail, and they typically have nothing
+  //  to do with any logical error.
+  // showError(errorThrown);
+}
+
 function showError(str) {
+  //For now, we will just show the error and hide info and sugs.
+  $('#suggestions').hide();
   $('#info').hide();
   $('#error-alert').text(str);
   $('#error-alert').show();
@@ -176,6 +180,10 @@ $(document).ready(function () {
     if(e.which == 13) {
       startSearch();
     }
+    //TODO: else if e.which is a UP or DOWN arrow
+    //      We should move the highlight.
+    //      Also, if a row is highlighted, use that
+    //      for the search instead of the input value.
     else {
       //TODO: convert the query to upper-case.
       lookup();
